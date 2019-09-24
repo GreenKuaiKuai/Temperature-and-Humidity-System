@@ -1,0 +1,89 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+	
+	<style>
+
+		#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }
+		</style>
+	<iframe width="600" height="371" seamless frameborder="0" scrolling="no" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQfuu-i5ajjXP7VLlcz2R1wKgU6vVlzaB9_aCgF9HSS7ePJ6mAvfnS_cPat1jEu3xnz-sa-p4mgjPCs/pubchart?oid=964020435&amp;format=interactive"></iframe>
+  <script src="https://blocklypro.webduino.io/components/jquery/dist/jquery.min.js?rev=4a356126b9573eb7bd1e9a7494737410"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=736fa9a2fba9fa461db7c329f6651493"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-dht/Dht.js"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-dht/Dht-blockly.js"></script>
+</head>
+
+<body>
+  <div><span id="demo-area-01-show"></span></div>
+</body>
+	
+	<script>
+var myData;
+var dht;
+
+function get_date(t) {
+  var varDay = new Date(),
+    varYear = varDay.getFullYear(),
+    varMonth = varDay.getMonth() + 1,
+    varDate = varDay.getDate();
+  var varNow;
+  if (t == "ymd") {
+    varNow = varYear + "/" + varMonth + "/" + varDate;
+  } else if (t == "mdy") {
+    varNow = varMonth + "/" + varDate + "/" + varYear;
+  } else if (t == "dmy") {
+    varNow = varDate + "/" + varMonth + "/" + varYear;
+  } else if (t == "y") {
+    varNow = varYear;
+  } else if (t == "m") {
+    varNow = varMonth;
+  } else if (t == "d") {
+    varNow = varDate;
+  }
+  return varNow;
+}
+
+function get_time(t) {
+  var varTime = new Date(),
+    varHours = varTime.getHours(),
+    varMinutes = varTime.getMinutes(),
+    varSeconds = varTime.getSeconds();
+  var varNow;
+  if (t == "hms") {
+    varNow = varHours + ":" + varMinutes + ":" + varSeconds;
+  } else if (t == "h") {
+    varNow = varHours;
+  } else if (t == "m") {
+    varNow = varMinutes;
+  } else if (t == "s") {
+    varNow = varSeconds;
+  }
+  return varNow;
+}
+
+
+boardReady({board: 'Smart', device: 'EVrVG', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 50;
+  myData= {};
+  myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1Aw53t4ho1i-xTJbFSX-goBbINcFfYtuojadIEA-KbkE/edit?usp=sharing';
+  myData.sheetName = '工作表1';
+  dht = getDht(board, 5);
+  dht.read(function(evt){
+    document.getElementById('demo-area-01-show').innerHTML = dht.temperature;
+    myData.column0 = get_date("ymd");
+    myData.column1 = get_time("hms");
+    myData.column2 = dht.temperature;
+    writeSheetData(myData);
+  }, 1000);
+});
+
+		
+		</script>	
+</html>

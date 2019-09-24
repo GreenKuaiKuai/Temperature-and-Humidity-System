@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+Created using JS Bin
+http://bin.webduino.io
+
+Copyright (c) 2019 by anonymous (http://bin.webduino.io/yewibo/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+
+<head>
+<meta name="description" content="[add your bin description]">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="https://blocklypro.webduino.io/components/jquery/dist/jquery.min.js?rev=4a356126b9573eb7bd1e9a7494737410"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/webduino-all-0.4.20.min.js?rev=4426739c00d85325cb2d3d701fa50666"></script>
+  <script src="https://blocklypro.webduino.io/dist/webduino-blockly.min.js?rev=736fa9a2fba9fa461db7c329f6651493"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/firebase.min.js?rev=c0bfd493efd477d098a4ae9e92b13880"></script>
+  <script src="https://blocklypro.webduino.io/dist/lib/runtime.min.js?rev=683a69503433786202911b4d9f766100"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-dht/Dht.js"></script>
+  <script src="https://blocklypro.webduino.io/components/webduino-module-dht/Dht-blockly.js"></script>
+<style id="jsbin-css">
+#temperature { font-size: 40px; pointer-events: auto!important; }
+#humidity { font-size: 40px; pointer-events: auto!important; }
+</style>
+</head>
+
+<body>
+  
+  <div>
+    <span style="display:inline;">現在時間:</span>   
+    <span id="date" style="display:inline;"></span>
+    <span id="time"></span>
+  </div>
+  
+  <div>
+    <span style="display:inline;">溫度:<span>
+    <span id="temperature" style="display:inline;"></span>
+    <span>°C</span>
+  </div>
+      
+  <div>
+    <span style="display:inline;">濕度:<span>
+    <span id="humidity" style="display:inline;"></span>
+    <span>%</span>
+  </div>
+      
+<script id="jsbin-javascript">
+var myData;
+var dht;
+
+function get_date(t) {
+  var varDay = new Date(),
+    varYear = varDay.getFullYear(),
+    varMonth = varDay.getMonth() + 1,
+    varDate = varDay.getDate();
+  var varNow;
+  if (t == "ymd") {
+    varNow = varYear + "/" + varMonth + "/" + varDate;
+  } else if (t == "mdy") {
+    varNow = varMonth + "/" + varDate + "/" + varYear;
+  } else if (t == "dmy") {
+    varNow = varDate + "/" + varMonth + "/" + varYear;
+  } else if (t == "y") {
+    varNow = varYear;
+  } else if (t == "m") {
+    varNow = varMonth;
+  } else if (t == "d") {
+    varNow = varDate;
+  }
+  return varNow;
+}
+
+function get_time(t) {
+  var varTime = new Date(),
+    varHours = varTime.getHours(),
+    varMinutes = varTime.getMinutes(),
+    varSeconds = varTime.getSeconds();
+	if (varHours < 10)
+	varHours = "0" + varHours;
+	if (varMinutes < 10)
+	varMinutes = "0" + varMinutes;
+	if (varSeconds < 10)
+	varSeconds = "0" + varSeconds;
+  var varNow;
+  if (t == "hms") {
+    varNow = varHours + ":" + varMinutes + ":" + varSeconds;
+  } else if (t == "h") {
+    varNow = varHours;
+  } else if (t == "m") {
+    varNow = varMinutes;
+  } else if (t == "s") {
+    varNow = varSeconds;
+  }
+  return varNow;
+}
+
+
+boardReady({board: 'Smart', device: 'EVrVG', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 50;
+  myData= {};
+  myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/19FbxcgfHycg6wx3ONnLc2KGaEDxfda_Pxe5yTWHlmQY/edit?usp=sharing';
+  myData.sheetName = '工作表1';
+  dht = getDht(board, 5);
+  dht.read(function(evt){
+    
+    document.getElementById('temperature').innerHTML = dht.temperature;
+    document.getElementById('humidity').innerHTML = dht.humidity;
+    document.getElementById('date').innerHTML = get_date("ymd");
+    document.getElementById('time').innerHTML = get_time("hms");
+    
+    myData.column0 = get_date("ymd");
+    myData.column1 = get_time("hms");
+    myData.column2 = dht.temperature;
+    myData.column3 = dht.humidity;
+    writeSheetData(myData);
+  }, 1000);
+});
+
+</script>
+</body>
